@@ -1,0 +1,49 @@
+// ==UserScript==
+// @name     WB stock
+// @include  https://www.wildberries.ru/*
+// @require  http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js
+// @grant    GM_addStyle
+// ==/UserScript==
+/*- The @grant directive is needed to work around a design change
+    introduced in GM 1.0.   It restores the sandbox.
+*/
+
+setTimeout(
+    function()
+    {
+        $('.j-card-item').each
+        (
+            function()
+            {
+                var card = $(this);
+
+                $.ajax
+                (
+                    {
+                        type:       'GET',
+                        url:        'https://card.wb.ru/cards/detail?spp=24&regions=68,64,83,4,38,80,33,70,82,86,75,30,69,1,48,22,66,31,40,71&pricemarginCoeff=1.0&reg=1&appType=1&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=12,3,18,15,21&dest=-1029256,-102269,-2162196,-2162195&nm=' + $(this).data('popupNmId'),
+                        dataType:   'JSON',
+                        success:
+                        function ( response )
+                        {
+                            var qty = 0;
+
+                            for ( var i = 0; i < response.data.products[0].sizes.length; i++ )
+                            {
+                                for ( var j = 0; j < response.data.products[0].sizes[i].stocks.length; j++ )
+                                {
+                                    qty += response.data.products[0].sizes[i].stocks[j].qty;
+                                }
+                            }
+
+                            var container = card.find('.j-thumbnail').parent();
+
+                            container.append('<div style="opacity: 0.75; font-size: 13px; font-weight: bold; position: absolute; bottom: 0; right: 0; padding: 10px; background: #000; color: #fff">' + qty + '</div>');
+                        }
+                    }
+                );
+            }
+        );
+    }
+, 3000);
+
